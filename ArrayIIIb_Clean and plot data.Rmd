@@ -182,16 +182,19 @@ We next want to compare how different formats perform in term of fluorescence dy
 designs <- c("extra","frag","short_vrich","rosetta")
 d_clean <- subset(d, !(w %in% designs) & l_len != "4")
 
-library(ggplot2)
-w <- factor(d_clean$w)
+#remove all double and triple substitutions, since they were only done on the long and short formats
+d_clean_single <- d_clean[!(d_clean$d %in% c(2,3)),]
 
-p <- ggplot(d_clean, aes(x=d_clean$w, y=d_clean$mean))
+library(ggplot2)
+w <- factor(d_clean_single$w)
+
+p <- ggplot(d_clean_single, aes(x=d_clean_single$w, y=d_clean_single$mean))
 #tiff("fluorescence vs s10 length format.tiff", units="in", width=11, height=15, res=500)
 p +  geom_jitter(position=position_jitter(0.3)) +
      geom_hline(yintercept=742, linetype="dashed", color = "black", size=0.5) + # mean s10 long
      # geom_hline(yintercept=201, linetype="dashed", color = "grey", size=0.5) + # mean s10 short
      xlab("\nPeptide format") + 
-     ylab("Mean fluorescence\n") + ylim(0,40000) +
+     ylab("Mean fluorescence\n") + ylim(0,8500) +
      theme(axis.text.x = element_text(angle = 90)) +
      scale_x_discrete(limits=c("long","short","short_shift1", "short_shift2", "neg_control", "link", "flag", "blank"),
                       labels = c("long","short","shortL", "shortR", "neg", "linker", "FLAG", "blank")) + 
@@ -275,23 +278,24 @@ The difference between the long and the short peptide context may be plotted as 
   
   #quartz(height=6, width=6)
   par(mar=c(6,7,3,2)+.2)
-  plot(dd$F1, dd$F2, pch=20, 
-       xlab="", 
-       ylab="long format, all substitution variants
-   Mean fluorescence", 
-       xlim=c(0,15000), ylim=c(0,25000), cex.axis =1.6, cex.lab=1.8)
-  mtext(text = "Mean fluorescence
+plot(dd$F1, dd$F2, pch=20, 
+     xlab="", 
+     ylab="long format, all substitution variants
+     Mean fluorescence", 
+     xlim=c(0,15000), ylim=c(0,25000), cex.axis =1.6, cex.lab=1.8)
+mtext(text = "Mean fluorescence
       short format, all substitution variants",
-        side = 1, #side 2 = left
-        line = 4.8,
-        cex=1.8)
-  abline(0,1)
-  coll=c("darkorange1",3)
-  points(dd$F1, dd$F2, pch=20, cex=.6, col=coll[dd$li1])
-  ddi = which(substr(dd$seq1,10,10)=="R")
-  points(dd[ddi,'F1'], dd[ddi,'F2'], pch=20, cex=.3, col=4)
-  legend("bottomright",c("Neutral linker","No linker","L207R both linkers","slope = 1"), 
-         pch=c(20,20,20,NA), lty=c(NA,NA,NA,1), col=c("darkorange1",3,4,1), cex=1.6)
+      side = 1, #side 2 = left
+      line = 4.8,
+      cex=1.8)
+abline(0,1)
+coll=c(2,4)
+points(dd$F1, dd$F2, pch=19, cex=.6, col=coll[dd$li1])
+#ddi = which(substr(dd$seq1,10,10)=="R")
+#points(dd['F1'], dd['F2'], pch=20, cex=.3, col=4)
+legend("bottomright",c("Neutral linker","No linker","slope = 1"), 
+       pch=c(20,20,NA), lty=c(NA,NA,1), col=c(2,4,1), cex=1.6)
+
 #quartz.save("short_vs_long.png",type="png")
 
 ```
@@ -509,7 +513,7 @@ First we need to get the fluorescence data together for all the scans in the WT,
 ```{r}
 
 d4 <- d[,c(2,3)]
-#The loop didn't work out :(
+#The loop didn't work out
 #wt_sequence <- c("LPDNHYLSTQTVLSKDPN", "LPDNYYLSTQTVLSKDPN", "LPDNHYLSYQTVLSKDPN","LPDNHYLSIQTVLSKDPN","LPDNHYLSTQTVVSKDPN","LPDNHYLSTQTVRSKDPN","LPDNYYLSYQTVLSKDPN")
 #context <- c("WT","H199Y","T203Y","T203I","L207V","L207R","H199Y/T203Y")
 
